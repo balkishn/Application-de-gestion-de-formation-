@@ -1,0 +1,115 @@
+\documentclass[12pt,a4paper]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{longtable}
+\usepackage{array}
+
+\geometry{margin=2.5cm}
+\onehalfspacing
+
+\begin{document}
+
+\setcounter{chapter}{2}
+
+\chapter{Planification, sprints et réalisation}
+
+\section{Introduction}
+Dans le cadre de la réalisation de la plateforme de gestion des formations, le backlog du projet a été organisé en deux sprints afin de structurer le développement de manière progressive, cohérente et orientée priorité métier. Cette organisation a permis de commencer par les fonctionnalités essentielles nécessaires au fonctionnement du système, avant d'intégrer les fonctionnalités complémentaires liées au confort d'utilisation, à la gestion des notifications et à l'administration des comptes. Le projet réalisé repose sur une architecture en trois couches : une couche présentation assurée par le frontend \texttt{Next.js}, une couche métier portée par le backend \texttt{Spring Boot}, et une couche de données reposant principalement sur \texttt{MySQL} avec l'utilisation de \texttt{Redis} pour la mise en cache. Le présent chapitre expose le contenu de chaque sprint, l'analyse des fonctionnalités issues du backlog et la manière dont celles-ci ont été concrètement réalisées dans l'application.
+
+\section{Sprint 1}
+
+\subsection{Planification du sprint}
+Le premier sprint a été consacré à la mise en place du noyau principal du système. La planification de ce sprint a été fondée sur les user stories à priorité élevée, car elles conditionnent l'utilisation effective de la plateforme. L'objectif de ce sprint était de livrer un premier incrément fonctionnel permettant aux différents acteurs du système d'accéder à l'application et d'utiliser les principales fonctionnalités métier.
+
+Les travaux de planification ont d'abord porté sur l'identification des acteurs, à savoir l'administrateur, le responsable et le simple utilisateur. Ensuite, les besoins ont été triés selon leur criticité afin de constituer un sprint centré sur les fonctionnalités indispensables : l'authentification, l'accès à l'interface d'administration, la gestion des utilisateurs, la gestion des référentiels métier, la consultation des statistiques et la gestion des entités principales du domaine de formation. Ce sprint a également intégré les activités d'analyse, de modélisation fonctionnelle et de rédaction des descriptions textuelles des tâches majeures, ce qui a permis de mieux formaliser les interactions entre les utilisateurs et le système avant la phase d'implémentation.
+
+Le tableau suivant présente les éléments du backlog retenus pour le Sprint 1.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}p{8.8cm}|>{\centering\arraybackslash}p{2.2cm}|}
+\hline
+\textbf{Thème} & \textbf{User Story} & \textbf{Priorité} \\
+\hline
+Authentification & En tant qu'utilisateur, je souhaite me connecter avec un nom d'utilisateur ou un email et un mot de passe. & Élevée \\
+\hline
+Administration & En tant qu'un admin, je peux accéder à une interface d'administration. & Élevée \\
+\hline
+Administration & En tant qu'un admin, je peux gérer les utilisateurs. & Élevée \\
+\hline
+Administration & En tant qu'un admin, je peux gérer les domaines, profils et structures. & Élevée \\
+\hline
+Responsable & En tant qu'un responsable, je peux consulter des statistiques afin de piloter l'activité. & Élevée \\
+\hline
+Simple utilisateur & En tant qu'utilisateur, je peux gérer les formateurs. & Élevée \\
+\hline
+Simple utilisateur & En tant qu'utilisateur, je peux gérer les participants. & Élevée \\
+\hline
+Simple utilisateur & En tant qu'utilisateur, je peux gérer les formations. & Élevée \\
+\hline
+\end{longtable}
+
+\subsection{Analyse des fonctionnalités}
+L'analyse fonctionnelle du Sprint 1 montre qu'il couvre le coeur métier de l'application. La première fonctionnalité essentielle est l'authentification. L'utilisateur doit pouvoir se connecter au système via un identifiant ou un email et un mot de passe, ce qui garantit un accès sécurisé et contrôlé selon le rôle associé au compte. Dans le projet réalisé, cette fonctionnalité a été concrétisée par un module d'authentification basé sur \texttt{JWT}, avec un point d'entrée dédié sur le backend, une gestion de session côté frontend et des redirections différentes selon le rôle de l'utilisateur connecté.
+
+Le deuxième groupe de fonctionnalités concerne l'administration. L'administrateur dispose d'un espace dédié lui permettant d'accéder à une interface d'administration et d'y gérer les utilisateurs. Cette gestion comprend la création, la consultation, la modification et la suppression des comptes selon les droits définis. En complément, l'administrateur peut gérer les domaines, les profils et les structures, qui représentent les référentiels de base utilisés dans l'ensemble de l'application. Dans le projet réalisé, ces besoins ont été couverts par des pages d'administration spécifiques dans le frontend et par des API REST sécurisées dans le backend.
+
+Le troisième volet du sprint porte sur le responsable, qui doit pouvoir consulter des statistiques pour piloter l'activité. Cette fonctionnalité permet d'obtenir une vue synthétique sur les formations, les participants, les formateurs et d'autres indicateurs consolidés. Dans l'application réalisée, cette capacité a été matérialisée par un module de statistiques, des tableaux de bord visuels et un endpoint agrégé optimisé pour limiter le nombre de requêtes côté client.
+
+Enfin, le simple utilisateur doit pouvoir gérer les formateurs, les participants et les formations. Ces trois fonctionnalités constituent le coeur opérationnel de la plateforme. La gestion des formateurs permet d'enregistrer et de suivre les intervenants, la gestion des participants permet de suivre les bénéficiaires des formations, et la gestion des formations permet d'organiser les sessions, les rattacher à des domaines, associer des formateurs et suivre les participants. Dans le projet réalisé, ces besoins ont été implémentés sous forme d'interfaces CRUD complètes adossées à des services métier et à des repositories de persistance.
+
+\section{Sprint 2 : Enrichissement fonctionnel et notifications}
+
+\subsection{Planification du sprint}
+Le deuxième sprint a été planifié comme une phase d'amélioration fonctionnelle venant compléter le socle principal livré lors du Sprint 1. Il regroupe les user stories de priorité moyenne qui, bien qu'elles ne soient pas strictement nécessaires à la première mise en service du système, apportent une valeur importante en matière d'ergonomie, de communication interne, de sécurité d'usage et de maintenance applicative.
+
+L'objectif de ce sprint était donc de renforcer l'expérience utilisateur, de fluidifier l'utilisation de la plateforme et d'ajouter des mécanismes de suivi plus avancés autour des notifications et de la gestion du compte. La planification a aussi pris en compte l'existence des briques techniques déjà mises en place lors du premier sprint, notamment le système d'authentification, la gestion des rôles, le module de notifications et les espaces applicatifs dédiés.
+
+Le tableau suivant présente les éléments du backlog retenus pour le Sprint 2.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}p{8.8cm}|>{\centering\arraybackslash}p{2.2cm}|}
+\hline
+\textbf{Thème} & \textbf{User Story} & \textbf{Priorité} \\
+\hline
+Authentification & En tant qu'utilisateur, je veux me déconnecter de mon compte. & Moyenne \\
+\hline
+Authentification & En tant qu'utilisateur, je souhaite réinitialiser mon mot de passe. & Moyenne \\
+\hline
+Simple utilisateur & En tant qu'un utilisateur, je peux accéder à une interface d'accueil centralisée. & Moyenne \\
+\hline
+Notifications & En tant qu'utilisateur, je peux marquer une notification comme résolue pour informer les autres utilisateurs. & Moyenne \\
+\hline
+Notifications & En tant qu'utilisateur, je veux qu'une notification soit marquée comme lue dès que consultée. & Moyenne \\
+\hline
+Notifications & En tant qu'utilisateur, je souhaite paramétrer des tâches planifiées pour purger les notifications. & Moyenne \\
+\hline
+Notifications & En tant qu'utilisateur, je souhaite paramétrer les notifications à recevoir. & Moyenne \\
+\hline
+\end{longtable}
+
+\subsection{Analyse des fonctionnalités}
+Le Sprint 2 couvre des fonctionnalités d'enrichissement orientées usage. La première concerne la déconnexion. Elle permet à l'utilisateur de terminer sa session de manière sûre, ce qui est important dans un contexte multi-utilisateur. Dans le projet réalisé, cette fonctionnalité est présente dans les espaces sécurisés à travers la suppression du jeton stocké côté client et la redirection vers la page de connexion.
+
+La deuxième fonctionnalité concerne la réinitialisation du mot de passe. Elle améliore l'autonomie des utilisateurs et renforce la continuité d'accès à la plateforme en cas d'oubli des identifiants. Dans l'application réalisée, cette fonctionnalité s'appuie sur un mécanisme de mot de passe oublié, la génération d'un jeton temporaire et un flux de réinitialisation.
+
+Le sprint comprend aussi une interface d'accueil centralisée. Cette dernière facilite la navigation en regroupant les accès principaux et les informations utiles dans un même point d'entrée. Dans le projet réalisé, cette logique est traduite par des tableaux de bord et des espaces de travail structurés selon le rôle de l'utilisateur.
+
+Le dernier bloc fonctionnel du sprint est celui des notifications. L'utilisateur doit pouvoir marquer une notification comme résolue, et une notification doit aussi pouvoir être considérée comme lue lorsqu'elle est consultée. Ces besoins s'inscrivent dans une logique de suivi collaboratif. Dans le projet réalisé, un centre de notifications existe déjà ainsi qu'un service de publication de notifications liées aux formations. En revanche, les fonctions avancées de paramétrage des notifications à recevoir et de purge planifiée des notifications relèvent davantage d'une évolution complémentaire : elles peuvent être considérées comme partiellement couvertes sur le plan technique, mais encore perfectibles sur le plan fonctionnel si une version plus aboutie est attendue.
+
+\section{Réalisation}
+La réalisation du projet s'est appuyée sur une architecture claire en trois couches. La couche présentation a été développée avec \texttt{Next.js} et organise l'application autour de plusieurs espaces : un espace public d'authentification, un espace d'administration, un espace responsable et un espace utilisateur. Cette couche gère l'affichage, la navigation, les tableaux de bord, les formulaires de gestion et les contrôles d'accès côté client.
+
+La couche métier a été développée avec \texttt{Spring Boot}. Elle contient les contrôleurs REST, les services métier, les DTO, la configuration de sécurité et les règles de gestion. Le backend applique l'authentification par jeton \texttt{JWT}, la gestion des rôles, le traitement des demandes CRUD, la production des statistiques, la gestion des notifications et l'envoi d'emails liés aux invitations, à la première connexion ou à la réinitialisation du mot de passe.
+
+La couche de données repose sur \texttt{MySQL} pour la persistance des principales entités telles que les utilisateurs, les rôles, les domaines, les profils, les structures, les formateurs, les participants, les formations et les notifications. Un mécanisme de cache \texttt{Redis} a été intégré pour améliorer les performances sur certaines données consultées de manière répétée, en particulier autour des formations. Cette architecture permet une séparation nette entre l'interface, les règles de gestion et la persistance.
+
+Sur le plan de la concrétisation du backlog, plusieurs fonctionnalités prévues ont été effectivement réalisées. La connexion, la déconnexion, la première connexion, la réinitialisation du mot de passe, l'administration des utilisateurs, la gestion des domaines, profils, structures, formateurs, participants et formations, ainsi que la consultation des statistiques sont toutes prises en charge par l'application. Le système propose également des notifications associées à certains événements métier. Certaines fonctionnalités de paramétrage avancé des notifications peuvent toutefois être considérées comme des pistes d'extension ou d'amélioration future selon le niveau de finition attendu dans le cadre du projet.
+
+\section{Conclusion}
+La répartition du backlog en deux sprints a permis de construire le projet de manière progressive et structurée. Le premier sprint a permis de mettre en place le socle fonctionnel du système à travers les fonctions critiques de sécurité, d'administration et de gestion métier. Le second sprint a permis d'enrichir la plateforme avec des fonctionnalités améliorant l'expérience utilisateur, la gestion des comptes et le suivi des notifications. Le projet réalisé répond ainsi à l'essentiel des besoins exprimés dans le backlog tout en conservant une architecture évolutive permettant d'intégrer ultérieurement des fonctionnalités complémentaires.
+
+\end{document}

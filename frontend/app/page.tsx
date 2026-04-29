@@ -5,7 +5,7 @@ import PublicFooter from "@/components/public-footer"
 
 export default function Home() {
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-background via-[#0f2818] to-background p-4">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-br from-background via-[#0f2818] to-background">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 h-96 w-96 rounded-full bg-emerald-500/15 blur-3xl animate-pulse" />
         <div
@@ -27,11 +27,15 @@ export default function Home() {
         style={{ animation: 'float 8s ease-in-out infinite', animationDelay: '1s' }}
       />
 
-      <div className="relative z-10 flex w-full flex-1 flex-col items-center justify-center">
-        <AuthenticationCard />
-      </div>
+      <main className="relative z-50 flex flex-1 items-center justify-center px-4 py-8">
+        <div className="flex w-full items-center justify-center">
+          <AuthenticationCard />
+        </div>
+      </main>
 
-      <PublicFooter />
+      <div className="relative z-50 mt-auto">
+        <PublicFooter />
+      </div>
 
       <style jsx>{`
         @keyframes float {
