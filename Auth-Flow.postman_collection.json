@@ -1,0 +1,193 @@
+{
+  "info": {
+    "name": "Formation Auth Flow",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Collection pour tester le flow d'authentification: login (email/login), creation user invite, first login, forgot/reset password."
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8081" },
+    { "key": "token", "value": "" },
+    { "key": "adminIdentifier", "value": "admin_test" },
+    { "key": "adminPassword", "value": "admin123" },
+    { "key": "invitedEmail", "value": "e2e_user@example.com" },
+    { "key": "invitedRoleId", "value": "3" },
+    { "key": "currentPassword", "value": "TEMP_PASSWORD_FROM_EMAIL" },
+    { "key": "newLogin", "value": "user_e2e" },
+    { "key": "newPassword", "value": "Final123!@#" },
+    { "key": "resetToken", "value": "PASTE_RESET_TOKEN_HERE" }
+  ],
+  "item": [
+    {
+      "name": "1) Login Admin",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"identifier\": \"{{adminIdentifier}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "login"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const json = pm.response.json();",
+              "if (json && json.data && json.data.token) {",
+              "  pm.collectionVariables.set('token', json.data.token);",
+              "}",
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2) Roles disponibles",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/utilisateurs/roles",
+          "host": ["{{baseUrl}}"],
+          "path": ["utilisateurs", "roles"]
+        }
+      }
+    },
+    {
+      "name": "3) Creer utilisateur invite",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{invitedEmail}}\",\n  \"roleId\": {{invitedRoleId}}\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/utilisateurs",
+          "host": ["{{baseUrl}}"],
+          "path": ["utilisateurs"]
+        }
+      }
+    },
+    {
+      "name": "4) Forgot Password",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{invitedEmail}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/forgot-password",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "forgot-password"]
+        }
+      }
+    },
+    {
+      "name": "5) Reset Password",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"newPassword\": \"{{newPassword}}\",\n  \"confirmPassword\": \"{{newPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/reset-password",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "reset-password"]
+        }
+      }
+    },
+    {
+      "name": "6) Login Invite (email + mdp)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"identifier\": \"{{invitedEmail}}\",\n  \"password\": \"{{newPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "login"]
+        }
+      }
+    },
+    {
+      "name": "7) Complete First Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"identifier\": \"{{invitedEmail}}\",\n  \"currentPassword\": \"{{newPassword}}\",\n  \"login\": \"{{newLogin}}\",\n  \"newPassword\": \"{{newPassword}}\",\n  \"confirmPassword\": \"{{newPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/complete-first-login",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "complete-first-login"]
+        }
+      }
+    },
+    {
+      "name": "8) Login Final (new login + mdp)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"identifier\": \"{{newLogin}}\",\n  \"password\": \"{{newPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "login"]
+        }
+      }
+    },
+    {
+      "name": "9) Validate Token",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/auth/validate",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "validate"]
+        }
+      }
+    }
+  ]
+}
