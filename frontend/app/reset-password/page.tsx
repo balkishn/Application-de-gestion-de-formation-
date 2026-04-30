@@ -3,7 +3,6 @@
 import { Suspense, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Lock } from "lucide-react"
-import PublicFooter from "@/components/public-footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -126,7 +125,7 @@ function ResetPasswordContent() {
         </div>
       </div>
 
-      <PublicFooter />
+
 
       <style jsx>{`
         @keyframes float {

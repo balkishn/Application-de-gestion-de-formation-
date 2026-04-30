@@ -27,6 +27,8 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       headers,
     })
 
+    // Backend responses are wrapped in a common envelope, but some endpoints may
+    // still return an empty body on success or failure, so JSON parsing must stay optional.
     let json: ApiEnvelope<T> | null = null
     try {
       json = await response.json()

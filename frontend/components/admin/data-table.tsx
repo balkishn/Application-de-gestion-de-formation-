@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ChevronUp, ChevronDown, Edit, Trash2, Plus } from 'lucide-react'
+import { ChevronDown, ChevronUp, Edit, Plus, Sparkles, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAdminSearchOptional } from '@/components/backoffice/search-context'
 
@@ -52,15 +52,9 @@ export default function DataTable({
   }
 
   const buildSearchText = (row: any) => {
-    const columnText = columns
-      .map((col) => normalizeValue(row[col.key]))
-      .join(' ')
-    const rawText = Object.values(row)
-      .map((value) => normalizeValue(value))
-      .join(' ')
-
-    return `${columnText} ${rawText}`
-      .toLowerCase()
+    const columnText = columns.map((col) => normalizeValue(row[col.key])).join(' ')
+    const rawText = Object.values(row).map((value) => normalizeValue(value)).join(' ')
+    return `${columnText} ${rawText}`.toLowerCase()
   }
 
   const handleSort = (columnKey: string) => {
@@ -99,9 +93,7 @@ export default function DataTable({
   const searchMatches = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
     if (!normalizedQuery) return []
-    return sortedData
-      .filter((row) => buildSearchText(row).includes(normalizedQuery))
-      .slice(0, 8)
+    return sortedData.filter((row) => buildSearchText(row).includes(normalizedQuery)).slice(0, 8)
   }, [query, sortedData])
 
   const totalPages = Math.max(1, Math.ceil(sortedData.length / ROWS_PER_PAGE))
@@ -126,9 +118,10 @@ export default function DataTable({
 
     const nextResults = searchMatches.map((row, idx) => {
       const rowId = String(getRowIdentifier(row, idx))
-      const label = normalizeValue(
-        row.nomEmployeur || row.nomemployeur || row.nom || row.prenom || row.login || row.titre || row.libelle || row.id,
-      ) || 'Resultat'
+      const label =
+        normalizeValue(
+          row.nomEmployeur || row.nomemployeur || row.nom || row.prenom || row.login || row.titre || row.libelle || row.id,
+        ) || 'Resultat'
       const subtitle = columns
         .map((col) => normalizeValue(row[col.key]))
         .filter(Boolean)
@@ -195,51 +188,72 @@ export default function DataTable({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">{title}</h1>
-          <p className="text-muted-foreground mt-1">{data.length} enregistrements</p>
+        <div className="space-y-3">
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-300">
+            <Sparkles className="h-3.5 w-3.5" />
+            Backoffice data view
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">{title}</h1>
+            <p className="mt-1 text-muted-foreground">{data.length} enregistrements</p>
+          </div>
         </div>
-        <div className="flex items-center justify-between gap-3 w-full md:w-auto md:min-w-[320px]">
+        <div className="flex w-full items-center justify-between gap-3 md:w-auto md:min-w-[320px]">
           <p className="text-xs text-muted-foreground">
             {sortedData.length === 0
-              ? '0 résultat'
+              ? '0 resultat'
               : `${pageStart + 1}-${Math.min(pageStart + ROWS_PER_PAGE, sortedData.length)} / ${sortedData.length}`}
           </p>
           {showAdd && (
-            <Button onClick={onAdd} className="gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg">
-              <Plus className="w-4 h-4" />
+            <Button
+              onClick={onAdd}
+              className="gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg hover:from-green-600 hover:to-emerald-700"
+            >
+              <Plus className="h-4 w-4" />
               Ajouter
             </Button>
           )}
         </div>
       </div>
 
-      {/* Table */}
-      <div className="rounded-2xl border border-border/30 backdrop-blur-xl overflow-hidden bg-gradient-to-br from-card/40 to-card/20">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+      <div className="overflow-hidden rounded-[28px] border border-emerald-500/15 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.16),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] shadow-[0_25px_80px_rgba(0,0,0,0.22)] backdrop-blur-xl">
+        <div className="grid gap-3 border-b border-white/10 bg-black/10 px-6 py-4 md:grid-cols-3">
+          <div className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3">
+            <p className="text-[11px] uppercase tracking-[0.24em] text-emerald-300/80">Volume</p>
+            <p className="mt-2 text-2xl font-bold text-foreground">{sortedData.length}</p>
+          </div>
+          <div className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3">
+            <p className="text-[11px] uppercase tracking-[0.24em] text-cyan-300/80">Page</p>
+            <p className="mt-2 text-2xl font-bold text-foreground">
+              {currentPage}/{totalPages}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3">
+            <p className="text-[11px] uppercase tracking-[0.24em] text-amber-300/80">Fenetre</p>
+            <p className="mt-2 text-sm font-medium text-foreground">
+              {sortedData.length === 0 ? 'Aucun resultat' : `${pageStart + 1} a ${Math.min(pageStart + ROWS_PER_PAGE, sortedData.length)}`}
+            </p>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto px-4 pb-4">
+          <table className="w-full border-separate [border-spacing:0_12px]">
             <thead>
-              <tr className="border-b border-border/50 bg-secondary/30">
+              <tr>
                 {columns.map((col) => (
-                  <th key={col.key} className="px-6 py-4 text-left">
+                  <th key={col.key} className="px-4 py-4 text-left first:pl-6">
                     <button
                       onClick={() => col.sortable && handleSort(col.key)}
-                      className="flex items-center gap-2 font-semibold text-foreground hover:text-green-400 transition-colors"
+                      className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground transition-colors hover:text-emerald-300"
                     >
                       {col.label}
-                      {col.sortable && sortBy === col.key && (
-                        sortOrder === 'asc' ? (
-                          <ChevronUp className="w-4 h-4" />
-                        ) : (
-                          <ChevronDown className="w-4 h-4" />
-                        )
-                      )}
+                      {col.sortable && sortBy === col.key &&
+                        (sortOrder === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
                     </button>
                   </th>
                 ))}
-                {showActions && <th className="px-6 py-4 text-center font-semibold text-foreground">Actions</th>}
+                {showActions && <th className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -249,37 +263,47 @@ export default function DataTable({
                 const isHighlighted = highlightedRowId !== null && String(highlightedRowId) === String(rowId)
 
                 return (
-                <tr
-                  key={String(rowId)}
-                  ref={(element) => {
-                    rowRefs.current[String(rowId)] = element
-                  }}
-                  className={`border-b border-border/30 transition-colors ${isHighlighted ? 'bg-gray-400/30' : 'hover:bg-green-500/5'}`}
-                >
-                  {columns.map((col) => (
-                    <td key={col.key} className="px-6 py-4 text-sm text-muted-foreground">
-                      {col.render ? col.render(row[col.key], row) : row[col.key]}
-                    </td>
-                  ))}
-                  {showActions && (
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => onEdit(row)}
-                          className="p-2 hover:bg-blue-500/20 rounded-lg transition-colors text-blue-400 hover:text-blue-300"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => onDelete(row)}
-                          className="p-2 hover:bg-red-500/20 rounded-lg transition-colors text-red-400 hover:text-red-300"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  )}
-                </tr>
+                  <tr
+                    key={String(rowId)}
+                    ref={(element) => {
+                      rowRefs.current[String(rowId)] = element
+                    }}
+                    className="group"
+                  >
+                    {columns.map((col, columnIndex) => (
+                      <td
+                        key={col.key}
+                        className={`border-y border-white/10 px-4 py-4 text-sm text-muted-foreground transition-all duration-300
+                          ${columnIndex === 0 ? 'rounded-l-2xl border-l pl-6' : ''}
+                          ${columnIndex === columns.length - 1 && !showActions ? 'rounded-r-2xl border-r pr-6' : ''}
+                          ${isHighlighted ? 'bg-emerald-500/18' : 'bg-white/[0.045] group-hover:bg-white/[0.075]'}`}
+                      >
+                        {col.render ? col.render(row[col.key], row) : row[col.key]}
+                      </td>
+                    ))}
+                    {showActions && (
+                      <td
+                        className={`rounded-r-2xl border-y border-r border-white/10 px-6 py-4 transition-all duration-300 ${
+                          isHighlighted ? 'bg-emerald-500/18' : 'bg-white/[0.045] group-hover:bg-white/[0.075]'
+                        }`}
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => onEdit(row)}
+                            className="rounded-xl border border-blue-400/20 bg-blue-500/10 p-2.5 text-blue-300 transition-colors hover:bg-blue-500/20 hover:text-blue-200"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => onDelete(row)}
+                            className="rounded-xl border border-red-400/20 bg-red-500/10 p-2.5 text-red-300 transition-colors hover:bg-red-500/20 hover:text-red-200"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    )}
+                  </tr>
                 )
               })}
             </tbody>
@@ -288,24 +312,24 @@ export default function DataTable({
 
         {data.length === 0 && (
           <div className="p-12 text-center">
-            <p className="text-muted-foreground text-lg">Aucune donnée disponible</p>
+            <p className="text-lg text-muted-foreground">Aucune donnee disponible</p>
             {showAdd && (
               <Button onClick={onAdd} variant="outline" className="mt-4">
-                Créer le premier enregistrement
+                Creer le premier enregistrement
               </Button>
             )}
           </div>
         )}
 
         {sortedData.length > 0 && (
-          <div className="flex flex-wrap items-center justify-end gap-2 border-t border-border/30 p-4 bg-secondary/10">
+          <div className="flex flex-wrap items-center justify-end gap-2 border-t border-white/10 bg-black/10 p-4">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
             >
-              Précédent
+              Precedent
             </Button>
             {Array.from({ length: totalPages }, (_, i) => i + 1)
               .filter((page) => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
@@ -314,12 +338,12 @@ export default function DataTable({
                 const showEllipsis = prev && page - prev > 1
                 return (
                   <div key={`page-${page}`} className="flex items-center gap-2">
-                    {showEllipsis && <span className="text-muted-foreground text-xs">...</span>}
+                    {showEllipsis && <span className="text-xs text-muted-foreground">...</span>}
                     <Button
                       variant={page === currentPage ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setCurrentPage(page)}
-                      className={page === currentPage ? 'bg-green-600 hover:bg-green-700 text-white' : ''}
+                      className={page === currentPage ? 'bg-green-600 text-white hover:bg-green-700' : ''}
                     >
                       {page}
                     </Button>

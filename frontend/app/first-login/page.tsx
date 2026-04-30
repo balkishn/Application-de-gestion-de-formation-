@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Lock, User } from "lucide-react"
-import PublicFooter from "@/components/public-footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -157,7 +156,7 @@ export default function FirstLoginPage() {
         </div>
       </div>
 
-      <PublicFooter />
+
 
       <style jsx>{`
         @keyframes float {

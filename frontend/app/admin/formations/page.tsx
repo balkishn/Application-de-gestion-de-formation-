@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { CalendarDays, Clock3, GraduationCap, MapPin, Users } from 'lucide-react'
 import DataTable from '@/components/admin/data-table'
 import FormModal from '@/components/admin/form-modal'
 import { domaineApi, formationApi, formateurApi, participantApi } from '@/lib/api'
@@ -24,7 +25,12 @@ export default function FormationsPage() {
         formateurApi.getAll(),
         participantApi.getAll().catch(() => []),
       ])
-      setFormations(formationsData || [])
+      const sortedFormations = [...(formationsData || [])].sort((a: any, b: any) => {
+        const aTime = a?.dateDebut ? new Date(`${a.dateDebut}T00:00:00`).getTime() : 0
+        const bTime = b?.dateDebut ? new Date(`${b.dateDebut}T00:00:00`).getTime() : 0
+        return bTime - aTime
+      })
+      setFormations(sortedFormations)
       setDomaines(domainesData || [])
       setFormateurs(formateursData || [])
       setParticipants(participantsData || [])
@@ -53,13 +59,13 @@ export default function FormationsPage() {
       await formationApi.remove(Number(row.id))
       await loadData()
       toast({
-        title: 'Succès',
-        description: 'La formation a été supprimée avec succès',
+        title: 'Succes',
+        description: 'La formation a ete supprimee avec succes',
       })
     } catch (e: any) {
       toast({
         title: 'Erreur de suppression',
-        description: e?.message || 'Impossible de supprimer cette formation car elle est utilisée dans d\'autres enregistrements.',
+        description: e?.message || "Impossible de supprimer cette formation car elle est utilisee dans d'autres enregistrements.",
         variant: 'destructive',
       })
     }
@@ -74,9 +80,7 @@ export default function FormationsPage() {
       lieu: data.lieu,
       dateDebut: data.startDate,
       formateurId: Number(data.formateurId),
-      participantIds: Array.isArray(data.participantIds)
-        ? data.participantIds.map((id: string) => Number(id))
-        : [],
+      participantIds: Array.isArray(data.participantIds) ? data.participantIds.map((id: string) => Number(id)) : [],
     }
 
     try {
@@ -88,19 +92,70 @@ export default function FormationsPage() {
       setShowModal(false)
       await loadData()
     } catch (e: any) {
-      setError(e?.message || 'Erreur lors de l\'enregistrement')
+      setError(e?.message || "Erreur lors de l'enregistrement")
     }
   }
 
   const columns = [
-    { key: 'titre', label: 'Nom', sortable: true },
-    { key: 'formateurNom', label: 'Instructeur', sortable: true },
-    { key: 'duree', label: 'Durée' },
-    { key: 'participantCount', label: 'Participants' },
+    {
+      key: 'titre',
+      label: 'Formation',
+      sortable: true,
+      render: (value: string, row: any) => (
+        <div className="space-y-1">
+          <div className="font-semibold text-foreground">{value}</div>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/12 px-2 py-1 text-emerald-300">
+              <MapPin className="h-3 w-3" />
+              {row.lieu || 'Lieu a definir'}
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-full bg-white/8 px-2 py-1">#{row.id}</span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'formateurNom',
+      label: 'Formateur',
+      sortable: true,
+      render: (value: string) => (
+        <div className="inline-flex items-center gap-2 text-foreground">
+          <span className="rounded-full bg-cyan-500/12 p-2 text-cyan-300">
+            <GraduationCap className="h-3.5 w-3.5" />
+          </span>
+          <span className="font-medium">{value || 'Non assigne'}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'duree',
+      label: 'Rythme',
+      render: (value: number) => (
+        <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/12 px-3 py-1.5 font-medium text-amber-200">
+          <Clock3 className="h-3.5 w-3.5" />
+          {value ? `${value} jours` : '-'}
+        </div>
+      ),
+    },
+    {
+      key: 'participantCount',
+      label: 'Participants',
+      render: (value: number) => (
+        <div className="inline-flex items-center gap-2 rounded-full bg-violet-500/12 px-3 py-1.5 font-medium text-violet-200">
+          <Users className="h-3.5 w-3.5" />
+          {value || 0}
+        </div>
+      ),
+    },
     {
       key: 'dateDebut',
-      label: 'Date début',
-      render: (value: string) => value || '-',
+      label: 'Lancement',
+      render: (value: string) => (
+        <div className="inline-flex items-center gap-2 text-foreground">
+          <CalendarDays className="h-4 w-4 text-emerald-300" />
+          <span>{value || '-'}</span>
+        </div>
+      ),
     },
   ]
 
@@ -120,13 +175,13 @@ export default function FormationsPage() {
           title={editingId ? 'Modifier la formation' : 'Nouvelle formation'}
           fields={[
             { name: 'name', label: 'Nom', type: 'text', required: true },
-            { name: 'duration', label: 'Durée (jours)', type: 'number', required: true },
+            { name: 'duration', label: 'Duree (jours)', type: 'number', required: true },
             { name: 'budget', label: 'Budget', type: 'number', required: true },
             { name: 'domaineId', label: 'Domaine', type: 'select', options: domaines.map((d) => ({ label: d.libelle, value: String(d.id) })), required: true },
             { name: 'formateurId', label: 'Formateur', type: 'select', options: formateurs.map((f) => ({ label: `${f.nom} ${f.prenom}`, value: String(f.id) })), required: true },
             { name: 'participantIds', label: 'Participants', type: 'multiselect', options: participants.map((p) => ({ label: `${p.nom} ${p.prenom}`, value: String(p.id) })), required: false },
             { name: 'lieu', label: 'Lieu', type: 'text', required: false },
-            { name: 'startDate', label: 'Date début', type: 'date', required: false },
+            { name: 'startDate', label: 'Date debut', type: 'date', required: false },
           ]}
           onSave={handleSaveModal}
           onClose={() => setShowModal(false)}

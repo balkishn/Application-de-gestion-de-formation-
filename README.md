@@ -79,9 +79,21 @@ formation/
 1. **Prerequisites**
    - Java 17+
    - MySQL 8.0+ or PostgreSQL 12+
+   - Redis 6.0+ (for local caching)
    - Gradle
 
-2. **Database Configuration**
+2. **Redis Configuration** (Optional but recommended for caching)
+   - Install Redis locally or use Docker:
+   ```bash
+   docker run -d -p 6379:6379 redis:latest
+   ```
+   - Or install natively:
+     - **Windows**: Download from https://github.com/microsoftarchive/redis/releases
+     - **Linux**: `sudo apt-get install redis-server`
+     - **macOS**: `brew install redis`
+   - Redis will run on default port `6379`
+
+3. **Database Configuration**
    - Create database: `CREATE DATABASE formation_db;`
    - Update `application.properties` with your database credentials
    
@@ -99,14 +111,14 @@ formation/
    spring.datasource.password=your_password
    ```
 
-3. **Run Backend**
+4. **Run Backend**
    ```bash
    ./gradlew bootRun
    ```
    
    The backend will start on `http://localhost:8080`
 
-4. **Initialize Demo Data**
+5. **Initialize Demo Data**
    After first startup, run the initialization script to populate demo roles:
    ```sql
    INSERT INTO role (nom) VALUES ('ADMINISTRATEUR');
@@ -210,6 +222,7 @@ Role: SIMPLE UTILISATEUR
 - **Spring Data JPA** - Database access
 - **Spring Security** - Authentication & authorization
 - **JWT** - Token-based authentication
+- **Redis** - Local caching layer
 - **Lombok** - Reduce boilerplate code
 - **Hibernate** - ORM framework
 

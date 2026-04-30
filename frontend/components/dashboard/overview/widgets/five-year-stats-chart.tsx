@@ -72,13 +72,6 @@ export function FiveYearStatsChart({
         <div style={{ fontSize: 10, color: MUTED, background: 'rgba(22, 163, 74, 0.08)', border: '1px solid rgba(22, 163, 74, 0.14)', padding: '4px 9px', borderRadius: 999 }}>5 ans</div>
       </div>
 
-      {trendValue !== null && (
-        <div style={{ marginBottom: 8, fontSize: 11, color: MUTED, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ width: 8, height: 8, borderRadius: 999, background: trendValue >= 0 ? G1 : ROSE, display: 'inline-block' }} />
-          {trendValue >= 0 ? '+' : ''}{trendValue}% vs l'annee precedente
-        </div>
-      )}
-
       {hoverIdx !== null && (
         <div
           style={{

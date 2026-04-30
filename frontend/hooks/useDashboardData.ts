@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { statistiquesApi } from '@/lib/api'
 
-interface DashboardData {
+export interface DashboardData {
   overview: {
     totalFormations: number
     totalParticipants: number
@@ -82,7 +82,7 @@ export function useDashboardData() {
         }
       }
 
-      const result = await statistiquesApi.dashboardData()
+      const result = await statistiquesApi.dashboardData() as DashboardData | null
       if (!result) {
         throw new Error('Invalid response format')
       }
@@ -90,13 +90,15 @@ export function useDashboardData() {
       setCachedData(result)
       setData(result)
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to load dashboard data'
-      setError(message)
-
       const cached = getCachedData()
       if (cached) {
         setData(cached)
+        setError(null)
+        return
       }
+
+      const message = err instanceof Error ? err.message : 'Failed to load dashboard data'
+      setError(message)
     } finally {
       setLoading(false)
     }

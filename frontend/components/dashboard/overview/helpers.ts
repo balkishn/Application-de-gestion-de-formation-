@@ -53,6 +53,8 @@ export function buildDirectionBreakdown(items: Array<{ label: string; value: num
 
 export function deriveFormationsData(allFormations: FormationItem[], currentYear: number): FormationsDerivedData {
   const now = new Date()
+  // Keep completion widgets focused on the recent planning horizon:
+  // previous month, current month, and next month.
   const windowStart = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0, 0)
   const windowEnd = new Date(now.getFullYear(), now.getMonth() + 2, 0, 23, 59, 59, 999)
 
@@ -66,6 +68,8 @@ export function deriveFormationsData(allFormations: FormationItem[], currentYear
       end.setDate(end.getDate() + days - 1)
       end.setHours(23, 59, 59, 999)
 
+      // Status is derived from the full formation span, not just the start date,
+      // so a multi-day formation stays "ongoing" until its last day ends.
       let status: CalendarFormation['status'] = 'upcoming'
       if (end < now) {
         status = 'past'
@@ -96,9 +100,11 @@ export function deriveFormationsData(allFormations: FormationItem[], currentYear
         return { label: formation.name, val: 0, status: 'upcoming' as const }
       }
 
+      // Ongoing formations are capped below 100% here so only finished formations
+      // render as fully complete in the progress widget.
       const elapsed = Math.max(0, Math.floor((now.getTime() - formation.start.getTime()) / (1000 * 60 * 60 * 24)))
-        const percent = Math.min(99, Math.round((elapsed * 100) / formation.days))
-        return { label: formation.name, val: percent, status: 'ongoing' as const }
+      const percent = Math.min(99, Math.round((elapsed * 100) / formation.days))
+      return { label: formation.name, val: percent, status: 'ongoing' as const }
     })
     .sort((a, b) => {
       if (a.status === b.status) {
@@ -130,6 +136,7 @@ export function deriveFormationsData(allFormations: FormationItem[], currentYear
       year,
       values,
       color: DOMAIN_COLORS[index % DOMAIN_COLORS.length],
+      // Older years are rendered as comparison lines rather than the primary series.
       dashed: index > 0,
     }
   })
