@@ -315,11 +315,4 @@ All endpoints return standardized responses:
 - Certificate generation
 - Mobile application
 
-## License
-
-This project is proprietary and developed for Excellence Training center.
-
-## Contact & Support
-
-For issues and questions, contact the development team.
 
